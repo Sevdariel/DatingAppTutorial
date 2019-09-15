@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BsDropdownModule, TabsModule } from 'ngx-bootstrap';
 import { RouterModule } from '@angular/router';
-import { NgxGalleryModule } from 'ngx-gallery'
+import { NgxGalleryModule } from 'ngx-gallery';
 import { JwtModule } from '@auth0/angular-jwt';
 
 import { AppComponent } from './app.component';
@@ -16,18 +16,22 @@ import { MemberListComponent } from './_components/members/member-list/member-li
 import { MessagesComponent } from './_components/messages/messages.component';
 import { MemberCardComponent } from './_components/members/member-card/member-card.component';
 import { MemberDetailComponent } from './_components/members/member-detail/member-detail.component';
+import { MemberEditComponent } from './_components/members/member-edit/member-edit.component';
 
 import { ErrorInterceptorProvider } from './_services/error/error.interceptor';
+
 import { AuthService } from './_services/auth/auth.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { UserService } from './_services/user/user.service';
+
 import { MemberDetailResolver } from './_resolvers/member-detail.resolver';
+import { MemberListResolver } from './_resolvers/member-list.resolver';
+import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 
 import { AuthGuard } from './_guards/auth.guard';
+import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 
 import { appRoutes } from './routes';
-import { MemberListResolver } from './_resolvers/member-list.resolver';
-
 
 export function tokenGetter() {
    return localStorage.getItem('token');
@@ -43,7 +47,8 @@ export function tokenGetter() {
       MemberListComponent,
       MessagesComponent,
       MemberCardComponent,
-      MemberDetailComponent
+      MemberDetailComponent,
+      MemberEditComponent
    ],
    imports: [
       BrowserModule,
@@ -66,9 +71,11 @@ export function tokenGetter() {
       ErrorInterceptorProvider,
       AlertifyService,
       AuthGuard,
+      PreventUnsavedChanges,
       UserService,
       MemberDetailResolver,
-      MemberListResolver
+      MemberListResolver,
+      MemberEditResolver
    ],
    bootstrap: [
       AppComponent
