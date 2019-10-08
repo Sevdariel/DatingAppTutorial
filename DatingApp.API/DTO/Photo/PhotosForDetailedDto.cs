@@ -1,6 +1,6 @@
 using System;
 
-namespace DatingApp.API.DTO
+namespace DatingApp.API.DTO.Photo
 {
     public class PhotosForDetailedDto
     {
