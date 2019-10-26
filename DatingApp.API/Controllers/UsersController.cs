@@ -27,11 +27,24 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery]UserParams userParams)
         {
-            var users = await datingRepository.GetUsers();
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var userFromRepo = await datingRepository.GetUser(currentUserId);
+
+            userParams.UserId = currentUserId;
+
+            if (string.IsNullOrEmpty(userParams.Gender))
+                userParams.Gender = userFromRepo.Gender == "male" ? "female" : "male";
+
+            var users = await datingRepository.GetUsers(userParams);
 
             var usersToReturn = mapper.Map<IEnumerable<UserForListDto>>(users);
+
+            Response.AddPagination(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages);
+
+
 
             return Ok(usersToReturn);
         }
@@ -50,13 +63,13 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> UpdateUser(int id, UserForUpdateDto userForUpdateDto)
         {
             if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-             return Unauthorized();
+                return Unauthorized();
 
-             var userFromRepo = await datingRepository.GetUser(id);
+            var userFromRepo = await datingRepository.GetUser(id);
 
-             mapper.Map(userForUpdateDto, userFromRepo);
+            mapper.Map(userForUpdateDto, userFromRepo);
 
-             if (await datingRepository.SaveAll())
+            if (await datingRepository.SaveAll())
                 return NoContent();
 
             throw new Exception($"Updating user {id} failed on save");
