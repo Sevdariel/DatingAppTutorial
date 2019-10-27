@@ -19,6 +19,6 @@ export class MemberEditResolver implements Resolve<User> {
                 this.router.navigate(['/members']);
                 return of(null);
             })
-        )
+        );
     }
 }

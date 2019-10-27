@@ -12,7 +12,7 @@ export class ListsResolver implements Resolve<User[]> {
     pageSize = 5;
     likesParam = 'Likers';
 
-    constructor(private userService: UserService, private router: Router, 
+    constructor(private userService: UserService, private router: Router,
                 private alertify: AlertifyService) { }
 
     resolve(route: ActivatedRouteSnapshot): Observable<User[]> {
@@ -22,6 +22,6 @@ export class ListsResolver implements Resolve<User[]> {
                 this.router.navigate(['/home']);
                 return of(null);
             })
-        )
+        );
     }
 }
