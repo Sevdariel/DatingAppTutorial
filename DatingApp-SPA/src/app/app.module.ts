@@ -21,6 +21,7 @@ import { MemberCardComponent } from './_components/members/member-card/member-ca
 import { MemberDetailComponent } from './_components/members/member-detail/member-detail.component';
 import { MemberEditComponent } from './_components/members/member-edit/member-edit.component';
 import { PhotoEditorComponent } from './_components/members/photo-editor/photo-editor.component';
+import { MemberMessagesComponent } from './_components/members/member-messages/member-messages.component';
 
 import { ErrorInterceptorProvider } from './_services/error/error.interceptor';
 
@@ -31,12 +32,15 @@ import { UserService } from './_services/user/user.service';
 import { MemberDetailResolver } from './_resolvers/member-detail.resolver';
 import { MemberListResolver } from './_resolvers/member-list.resolver';
 import { MemberEditResolver } from './_resolvers/member-edit.resolver';
+import { ListsResolver } from './_resolvers/lists.resolver';
+import { MessagesResolver } from './_resolvers/messages.resolver';
 
 import { AuthGuard } from './_guards/auth.guard';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 
 import { appRoutes } from './routes';
-import { ListsResolver } from './_resolvers/lists.resolver';
+
+
 
 export function tokenGetter() {
    return localStorage.getItem('token');
@@ -55,6 +59,7 @@ export function tokenGetter() {
       MemberDetailComponent,
       MemberEditComponent,
       PhotoEditorComponent,
+      MemberMessagesComponent,
       TimeAgoPipe
    ],
    imports: [
@@ -89,7 +94,8 @@ export function tokenGetter() {
       MemberDetailResolver,
       MemberListResolver,
       MemberEditResolver,
-      ListsResolver
+      ListsResolver,
+      MessagesResolver
    ],
    bootstrap: [
       AppComponent
