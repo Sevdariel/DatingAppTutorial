@@ -28,7 +28,7 @@ export class MemberDetailComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const selectedTab = params.tab;
       this.memberTabs.tabs[selectedTab > 0 ? selectedTab : 0].active = true;
-    })
+    });
 
     this.galleryOptions = [
       {
@@ -46,12 +46,12 @@ export class MemberDetailComponent implements OnInit {
   getImages() {
     const imageUrls = [];
 
-    for (let i = 0; i < this.user.photos.length; i++) {
+    for (const photo of this.user.photos) {
       imageUrls.push({
-        small: this.user.photos[i].url,
-        medium: this.user.photos[i].url,
-        big: this.user.photos[i].url,
-        description: this.user.photos[i].description
+        small: photo.url,
+        medium: photo.url,
+        big: photo.url,
+        description: photo.description
       });
     }
 

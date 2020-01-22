@@ -8,7 +8,6 @@ using DatingApp.API.DTO.Photo;
 using DatingApp.API.Helpers;
 using DatingApp.API.Models;
 using DatingApp.API.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -18,7 +17,6 @@ namespace DatingApp.API.Controllers
     [ApiController]
     public class PhotosController : ControllerBase
     {
-
         public PhotosController(IDatingRepository datingRepository, IMapper mapper, IOptions<CloudinarySettings> cloudinaryConfig)
         {
             this.datingRepository = datingRepository;
@@ -46,7 +44,7 @@ namespace DatingApp.API.Controllers
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
-            var userFromRepo = await datingRepository.GetUser(userId);
+            var userFromRepo = await datingRepository.GetUser(userId, true);
 
             var file = photoForCreationDto.File;
 
@@ -91,7 +89,7 @@ namespace DatingApp.API.Controllers
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
-            var user = await datingRepository.GetUser(userId);
+            var user = await datingRepository.GetUser(userId, true);
 
             if (!user.Photos.Any(p => p.Id == id))
                 return Unauthorized();
@@ -118,7 +116,7 @@ namespace DatingApp.API.Controllers
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
-            var user = await datingRepository.GetUser(userId);
+            var user = await datingRepository.GetUser(userId, true);
 
             if (!user.Photos.Any(p => p.Id == id))
                 return Unauthorized();

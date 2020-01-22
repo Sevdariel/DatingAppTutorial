@@ -69,7 +69,7 @@ namespace DatingApp.API.Repositories
         {
             var messages = await context.Messages
                        .Where(m => m.RecipientId == userId && m.RecipientDeleted == false
-                            && m.SenderId == recipientId || m.RecipientId == recipientId 
+                            && m.SenderId == recipientId || m.RecipientId == recipientId
                             && m.SenderId == userId && m.SenderDeleted == false)
                        .OrderByDescending(m => m.MessageSent)
                        .ToListAsync();
@@ -79,13 +79,18 @@ namespace DatingApp.API.Repositories
 
         public async Task<Photo> GetPhoto(int id)
         {
-            var photo = await context.Photos.FirstOrDefaultAsync(p => p.Id == id);
+            var photo = await context.Photos.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
 
             return photo;
         }
 
-        public async Task<User> GetUser(int id)
+        public async Task<User> GetUser(int id, bool isCurrentUser)
         {
+            var query = context.Users.Include(p => p.Photos).AsQueryable();
+
+            if (isCurrentUser)
+                query = query.IgnoreQueryFilters();
+
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             return user;

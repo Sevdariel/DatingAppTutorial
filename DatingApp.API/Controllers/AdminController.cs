@@ -1,12 +1,17 @@
 using System.Linq;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using DatingApp.API.Data;
 using DatingApp.API.DTO.Role;
+using DatingApp.API.Helpers;
 using DatingApp.API.Models;
+using DatingApp.API.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace DatingApp.API.Controllers
 {
@@ -14,10 +19,17 @@ namespace DatingApp.API.Controllers
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
-        public AdminController(DataContext context, UserManager<User> userManager)
+        public AdminController(DataContext context, UserManager<User> userManager,
+            IDatingRepository datingRepository, IOptions<CloudinarySettings> cloudinaryConfig)
         {
             this.context = context;
             this.userManager = userManager;
+            this.datingRepository = datingRepository;
+            this.cloudinaryConfig = cloudinaryConfig;
+
+            Account acc = new Account(cloudinaryConfig.Value.CloudName, cloudinaryConfig.Value.ApiKey, cloudinaryConfig.Value.ApiSecret);
+
+            cloudinary = new Cloudinary(acc);
         }
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("usersWithRoles")]
@@ -65,13 +77,67 @@ namespace DatingApp.API.Controllers
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photosForModeration")]
-        public IActionResult GetPhotosForModeration()
+        public async Task<IActionResult> GetPhotosForModeration()
         {
-            return Ok("Admins or moderators can see this");
+            var photosList = await context.Photos
+            .Include(u => u.User)
+            .IgnoreQueryFilters()
+            .Select(u => new
+            {
+                Id = u.Id,
+                UserName = u.User.UserName,
+                Url = u.Url,
+                IsAproved = u.IsAproved
+            }).Where(p => !p.IsAproved).ToListAsync();
+
+            return Ok(photosList);
         }
 
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("aprovePhoto/{id}")]
+        public async Task<IActionResult> AprovePhoto(int id)
+        {
+            var photo = await datingRepository.GetPhoto(id);
+
+            photo.IsAproved = true;
+
+            if (await datingRepository.SaveAll())
+                return Ok();
+
+            return BadRequest("Couln't aprove photo");
+        }
+
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpDelete("rejectPhoto/{id}")]
+        public async Task<IActionResult> RejectPhoto(int id)
+        {
+            var photoFromRepo = await datingRepository.GetPhoto(id);
+
+            if (photoFromRepo.IsMain)
+                return BadRequest("You cannot reject the main photo");
+                
+            if (photoFromRepo.PublicId != null)
+            {
+                var deleteParams = new DeletionParams(photoFromRepo.PublicId);
+                var result = cloudinary.Destroy(deleteParams);
+
+                if (result.Result == "ok")
+                    datingRepository.Delete(photoFromRepo);
+            }
+
+            if (photoFromRepo.PublicId == null)
+                datingRepository.Delete(photoFromRepo);
+
+            if (await datingRepository.SaveAll())
+                return Ok();
+
+            return BadRequest("Failed to delete the photo");
+        }
 
         private readonly DataContext context;
+        private Cloudinary cloudinary;
         private readonly UserManager<User> userManager;
+        private readonly IDatingRepository datingRepository;
+        private readonly IOptions<CloudinarySettings> cloudinaryConfig;
     }
 }

@@ -32,7 +32,7 @@ import { ErrorInterceptorProvider } from './_services/error/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { UserService } from './_services/user/user.service';
-import { AdminService } from './_services/admin.service';
+import { AdminService } from './_services/admin/admin.service';
 
 import { MemberDetailResolver } from './_resolvers/member-detail.resolver';
 import { MemberListResolver } from './_resolvers/member-list.resolver';
